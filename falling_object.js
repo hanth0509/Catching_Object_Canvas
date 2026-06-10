@@ -9,7 +9,7 @@ class FallingObject extends GameObject {
 
     update(secondsPassed) {
         // TODO: Move the object downward.
-        // Hint: call super.update(secondsPassed).
+        super.update(secondsPassed);
     }
 
     draw() {
@@ -26,6 +26,9 @@ class FallingObject extends GameObject {
 
     isOffScreen(boardHeight) {
         // TODO: Return true when the object is below the canvas.
+        if(this.bottom > boardHeight) {
+            return true;
+        }
         return false;
     }
 }

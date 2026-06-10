@@ -108,14 +108,26 @@ class Game {
         this.catcher.update(secondsPassed, this.width);
 
         // TODO: Spawn falling objects and obstacles.
-        // Hint: call this.spawnItems(secondsPassed).
+        this.spawnItems(secondsPassed);
 
         // TODO: Update falling objects and obstacles.
         // Hint: loop over this.fallingObjects and this.obstacles.
+        for (let i = this.fallingObjects.length - 1; i >= 0; i--) {
+            this.fallingObjects[i].update(secondsPassed);
+        }
+
+        for (let i = this.obstacles.length - 1; i >= 0; i--) {
+            this.obstacles[i].update(secondsPassed);
+        }
 
         // TODO: Check if catcher touches a falling object.
         // If yes, increase score and remove that object.
-
+        for (let i = this.fallingObjects.length - 1; i >= 0; i--) {
+            if (this.catcher.isTouching(this.fallingObjects[i])) {
+                this.score++;
+                this.fallingObjects.splice(i, 1);
+            }
+        }
         // TODO: Check if catcher touches an obstacle.
         // If yes, lose a life and remove that obstacle.
 

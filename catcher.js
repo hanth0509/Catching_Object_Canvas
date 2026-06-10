@@ -12,11 +12,12 @@ class Catcher extends GameObject {
     update(secondsPassed, boardWidth) {
         // TODO: Use moveLeft and moveRight to change this.x.
         // Hint:
-        // if (this.moveLeft) this.x -= this.speed * secondsPassed;
-        // if (this.moveRight) this.x += this.speed * secondsPassed;
+        if (this.moveLeft) this.x -= this.speed * secondsPassed;
+        if (this.moveRight) this.x += this.speed * secondsPassed;
 
         // TODO: Keep the catcher inside the canvas.
         // Hint: clamp this.x between 0 and boardWidth - this.width.
+        this.keepInside(boardWidth);
     }
 
     moveToCenter(centerX, boardWidth) {
