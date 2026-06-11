@@ -315,7 +315,7 @@ class Game {
     showGameOver() {
         this.run = false;
         this.gameOver = true;
-        this.ui.showMessage("Game Over", "Restart", () => this.restart());
+        this.ui.showMessage("Game Over - Score: " + this.score, "Restart", () => this.restart());
     }
 
     draw() {
