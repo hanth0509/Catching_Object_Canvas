@@ -26,7 +26,7 @@ class FallingObject extends GameObject {
 
     isOffScreen(boardHeight) {
         // TODO: Return true when the object is below the canvas.
-        if(this.bottom > boardHeight) {
+        if(this.bottom() > boardHeight) {
             return true;
         }
         return false;

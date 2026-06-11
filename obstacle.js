@@ -23,7 +23,7 @@ class Obstacle extends GameObject {
 
     isOffScreen(boardHeight) {
         // TODO: Return true when the obstacle is below the canvas.
-        if(this.bottom > boardHeight) {
+        if(this.bottom() > boardHeight) {
             return true;
         }
         return false;

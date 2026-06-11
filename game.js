@@ -130,11 +130,29 @@ class Game {
         }
         // TODO: Check if catcher touches an obstacle.
         // If yes, lose a life and remove that obstacle.
-
+        for (let i = this.obstacles.length - 1; i >= 0; i--) {
+            if (this.catcher.isTouching(this.obstacles[i])) {
+                this.lives--;
+                this.obstacles.splice(i, 1);
+            }
+        }
         // TODO: Remove items that leave the screen.
         // If a falling object reaches the bottom, lose a life.
-
+        for (let i = this.fallingObjects.length - 1; i >= 0; i--) {
+            if (this.fallingObjects[i].isOffScreen(this.height)) {
+                this.lives--;
+                this.fallingObjects.splice(i, 1);
+            }
+        }
+        for (let i = this.obstacles.length - 1; i >= 0; i--) {
+            if (this.obstacles[i].isOffScreen(this.height)) {
+                this.obstacles.splice(i, 1);
+            }
+        }
         // TODO: If lives is 0, set gameOver and show restart UI.
+        if (this.lives <= 0) {
+            this.showGameOver();
+        }
     }
 
     spawnItems(secondsPassed) {
@@ -148,14 +166,15 @@ class Game {
 
         // TODO: Randomly create either a FallingObject or an Obstacle.
         // Helpful values:
-        // let x = Math.random() * (this.width - 40);
-        // let shouldSpawnObstacle = Math.random() < 0.3;
-        //
-        // Falling object example:
-        // this.fallingObjects.push(new FallingObject(this.context, x, -32, 32, FALL_SPEED));
-        //
-        // Obstacle example:
-        // this.obstacles.push(new Obstacle(this.context, x, -36, 44, 28, OBSTACLE_SPEED));
+        let x = Math.random() * (this.width - 40);
+        let shouldSpawnObstacle = Math.random() < 0.3;
+        
+        // object example:
+        if(shouldSpawnObstacle){
+            this.obstacles.push(new Obstacle(this.context, x, -36, 44, 28, OBSTACLE_SPEED));
+        } else {
+            this.fallingObjects.push(new FallingObject(this.context, x, -32, 32, FALL_SPEED));
+        }
     }
 
     start() {
