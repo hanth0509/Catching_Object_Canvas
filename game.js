@@ -39,6 +39,7 @@ class Game {
 
         this.fallingObjects = [];
         this.obstacles = [];
+        this.heartObjects = [];
 
         this.createActors();
         this.listenForPlayerInput();
@@ -119,7 +120,9 @@ class Game {
         for (let i = this.obstacles.length - 1; i >= 0; i--) {
             this.obstacles[i].update(secondsPassed);
         }
-
+        for (let i = this.heartObjects.length - 1; i >= 0; i--) {
+            this.heartObjects[i].update(secondsPassed);
+        }
         // TODO: Check if catcher touches a falling object.
         // If yes, increase score and remove that object.
         for (let i = this.fallingObjects.length - 1; i >= 0; i--) {
@@ -136,6 +139,14 @@ class Game {
                 this.obstacles.splice(i, 1);
             }
         }
+        for (let i = this.heartObjects.length - 1; i >= 0; i--) {
+            if (this.catcher.isTouching(this.heartObjects[i])) {
+                if (this.lives < 3) {
+                    this.lives++;
+                }
+                this.heartObjects.splice(i, 1);
+            }
+        }
         // TODO: Remove items that leave the screen.
         // If a falling object reaches the bottom, lose a life.
         for (let i = this.fallingObjects.length - 1; i >= 0; i--) {
@@ -149,9 +160,14 @@ class Game {
                 this.obstacles.splice(i, 1);
             }
         }
-        // TODO: If lives is 0, set gameOver and show restart UI.
-        if (this.lives <= 0) {
-            this.showGameOver();
+        for (let i = this.heartObjects.length - 1; i >= 0; i--) {
+            if (this.heartObjects[i].isOffScreen(this.height)) {
+                this.heartObjects.splice(i, 1);
+            }
+            // TODO: If lives is 0, set gameOver and show restart UI.
+            if (this.lives <= 0) {
+                this.showGameOver();
+            }
         }
     }
 
@@ -166,15 +182,27 @@ class Game {
 
         // TODO: Randomly create either a FallingObject or an Obstacle.
         // Helpful values:
-        let x = Math.random() * (this.width - 40);
+        // let x = Math.random() * (this.width - 40);
+        const LANES = 19;
+        const laneWidth = this.width / LANES;
+        let lane = Math.floor(Math.random() * LANES);
+
+
         let shouldSpawnObstacle = Math.random() < 0.3;
-        
+        let shouldSpawnHeart = this.lives < 3 && Math.random() < 0.05;
         // object example:
-        if(shouldSpawnObstacle){
-            this.obstacles.push(new Obstacle(this.context, x, -36, 44, 28, OBSTACLE_SPEED));
-        } else {
-            this.fallingObjects.push(new FallingObject(this.context, x, -32, 32, FALL_SPEED));
-        }
+        if (shouldSpawnHeart) {
+            let x = lane * laneWidth + (laneWidth - 32) / 2;
+            this.heartObjects.push(new HeartObject(this.context, x, -32, 32, FALL_SPEED));
+        } else
+            if (shouldSpawnObstacle) {
+                let x = lane * laneWidth + (laneWidth - 44) / 2;
+                this.obstacles.push(new Obstacle(this.context, x, -36, 44, 28, OBSTACLE_SPEED));
+            } else {
+                let x = lane * laneWidth + (laneWidth - 32) / 2;
+                this.fallingObjects.push(new FallingObject(this.context, x, -32, 32, FALL_SPEED));
+            }
+
     }
 
     start() {
@@ -192,6 +220,7 @@ class Game {
         this.spawnTimer = 0;
         this.fallingObjects = [];
         this.obstacles = [];
+        this.heartObjects = [];
         this.createActors();
         this.oldTimeStamp = performance.now();
         this.ui.hideMessage();
@@ -212,6 +241,7 @@ class Game {
         this.drawBackground();
         this.fallingObjects.forEach((fallingObject) => fallingObject.draw());
         this.obstacles.forEach((obstacle) => obstacle.draw());
+        this.heartObjects.forEach((heartObject) => heartObject.draw());
         this.catcher.draw();
         this.ui.updateGameInfo(this.score, this.lives);
     }
