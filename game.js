@@ -164,11 +164,12 @@ class Game {
             if (this.heartObjects[i].isOffScreen(this.height)) {
                 this.heartObjects.splice(i, 1);
             }
-            // TODO: If lives is 0, set gameOver and show restart UI.
-            if (this.lives <= 0) {
-                this.showGameOver();
-            }
         }
+        // TODO: If lives is 0, set gameOver and show restart UI.
+        if (this.lives <= 0) {
+            this.showGameOver();
+        }
+
     }
 
     spawnItems(secondsPassed) {
