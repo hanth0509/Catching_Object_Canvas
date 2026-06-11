@@ -41,6 +41,11 @@ class Game {
         this.obstacles = [];
         this.heartObjects = [];
 
+        this.speedUpObjects = [];
+        this.slowDownObjects = [];
+
+        this.speedMultiplier = 1;
+
         this.createActors();
         this.listenForPlayerInput();
         this.draw();
@@ -111,6 +116,26 @@ class Game {
         // TODO: Spawn falling objects and obstacles.
         this.spawnItems(secondsPassed);
 
+        // Update the speed of falling objects and obstacles based on the speed multiplier.
+        for (let i = 0; i < this.fallingObjects.length; i++) {
+            this.fallingObjects[i].vy = FALL_SPEED * this.speedMultiplier;
+        }
+
+        for (let i = 0; i < this.obstacles.length; i++) {
+            this.obstacles[i].vy = OBSTACLE_SPEED * this.speedMultiplier;
+        }
+
+        for (let i = 0; i < this.heartObjects.length; i++) {
+            this.heartObjects[i].vy = FALL_SPEED * this.speedMultiplier;
+        }
+
+        for (let i = 0; i < this.speedUpObjects.length; i++) {
+            this.speedUpObjects[i].vy = FALL_SPEED * this.speedMultiplier;
+        }
+
+        for (let i = 0; i < this.slowDownObjects.length; i++) {
+            this.slowDownObjects[i].vy = FALL_SPEED * this.speedMultiplier;
+        }
         // TODO: Update falling objects and obstacles.
         // Hint: loop over this.fallingObjects and this.obstacles.
         for (let i = this.fallingObjects.length - 1; i >= 0; i--) {
@@ -123,12 +148,42 @@ class Game {
         for (let i = this.heartObjects.length - 1; i >= 0; i--) {
             this.heartObjects[i].update(secondsPassed);
         }
+        for (let i = this.speedUpObjects.length - 1; i >= 0; i--) {
+            this.speedUpObjects[i].update(secondsPassed);
+        }
+        for (let i = this.slowDownObjects.length - 1; i >= 0; i--) {
+            this.slowDownObjects[i].update(secondsPassed);
+        }
         // TODO: Check if catcher touches a falling object.
         // If yes, increase score and remove that object.
         for (let i = this.fallingObjects.length - 1; i >= 0; i--) {
             if (this.catcher.isTouching(this.fallingObjects[i])) {
                 this.score++;
                 this.fallingObjects.splice(i, 1);
+            }
+        }
+        // TODO: Check if catcher touches a speed-up object.
+        // If yes, increase speed and remove that object.
+        for (let i = this.speedUpObjects.length - 1; i >= 0; i--) {
+            if (this.catcher.isTouching(this.speedUpObjects[i])) {
+                this.speedMultiplier += 0.5;
+                // Limit the speed multiplier to prevent it from becoming too fast.
+                if (this.speedMultiplier > 5) {
+                    this.speedMultiplier = 5;
+                }
+                this.speedUpObjects.splice(i, 1);
+            }
+        }
+        // TODO: Check if catcher touches a slow-down object.
+        // If yes, decrease speed and remove that object.
+        for (let i = this.slowDownObjects.length - 1; i >= 0; i--) {
+            if (this.catcher.isTouching(this.slowDownObjects[i])) {
+                this.speedMultiplier -= 0.5;
+                // Limit the speed multiplier to prevent it from becoming too slow.
+                if (this.speedMultiplier < 0.1) {
+                    this.speedMultiplier = 0.1;
+                }
+                this.slowDownObjects.splice(i, 1);
             }
         }
         // TODO: Check if catcher touches an obstacle.
@@ -165,6 +220,18 @@ class Game {
                 this.heartObjects.splice(i, 1);
             }
         }
+
+        for (let i = this.speedUpObjects.length - 1; i >= 0; i--) {
+            if (this.speedUpObjects[i].isOffScreen(this.height)) {
+                this.speedUpObjects.splice(i, 1);
+            }
+        }
+
+        for (let i = this.slowDownObjects.length - 1; i >= 0; i--) {
+            if (this.slowDownObjects[i].isOffScreen(this.height)) {
+                this.slowDownObjects.splice(i, 1);
+            }
+        }
         // TODO: If lives is 0, set gameOver and show restart UI.
         if (this.lives <= 0) {
             this.showGameOver();
@@ -190,19 +257,30 @@ class Game {
 
 
         let shouldSpawnObstacle = Math.random() < 0.3;
-        let shouldSpawnHeart = this.lives < 3 && Math.random() < 0.05;
+        let shouldSpawnHeart = this.lives < 3 && Math.random() < 0.03;
+        let shouldSpawnSpeed = Math.random() < 0.05;
+        let shouldSpawnSlow = Math.random() < 0.05;
         // object example:
+
         if (shouldSpawnHeart) {
             let x = lane * laneWidth + (laneWidth - 32) / 2;
             this.heartObjects.push(new HeartObject(this.context, x, -32, 32, FALL_SPEED));
         } else
-            if (shouldSpawnObstacle) {
-                let x = lane * laneWidth + (laneWidth - 44) / 2;
-                this.obstacles.push(new Obstacle(this.context, x, -36, 44, 28, OBSTACLE_SPEED));
-            } else {
+            if (shouldSpawnSpeed) {
                 let x = lane * laneWidth + (laneWidth - 32) / 2;
-                this.fallingObjects.push(new FallingObject(this.context, x, -32, 32, FALL_SPEED));
-            }
+                this.speedUpObjects.push(new SpeedUpObject(this.context, x, -32, 32, FALL_SPEED));
+            } else
+                if (shouldSpawnSlow) {
+                    let x = lane * laneWidth + (laneWidth - 32) / 2;
+                    this.slowDownObjects.push(new SlowDownObject(this.context, x, -32, 32, FALL_SPEED));
+                } else
+                    if (shouldSpawnObstacle) {
+                        let x = lane * laneWidth + (laneWidth - 44) / 2;
+                        this.obstacles.push(new Obstacle(this.context, x, -36, 44, 28, OBSTACLE_SPEED));
+                    } else {
+                        let x = lane * laneWidth + (laneWidth - 32) / 2;
+                        this.fallingObjects.push(new FallingObject(this.context, x, -32, 32, FALL_SPEED));
+                    }
 
     }
 
@@ -222,6 +300,9 @@ class Game {
         this.fallingObjects = [];
         this.obstacles = [];
         this.heartObjects = [];
+        this.speedUpObjects = [];
+        this.slowDownObjects = [];
+        this.speedMultiplier = 1;
         this.createActors();
         this.oldTimeStamp = performance.now();
         this.ui.hideMessage();
@@ -243,6 +324,8 @@ class Game {
         this.fallingObjects.forEach((fallingObject) => fallingObject.draw());
         this.obstacles.forEach((obstacle) => obstacle.draw());
         this.heartObjects.forEach((heartObject) => heartObject.draw());
+        this.speedUpObjects.forEach((speedUpObject) => speedUpObject.draw());
+        this.slowDownObjects.forEach((slowDownObject) => slowDownObject.draw());
         this.catcher.draw();
         this.ui.updateGameInfo(this.score, this.lives);
     }
